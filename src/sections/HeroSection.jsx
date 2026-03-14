@@ -104,12 +104,7 @@ const HeroSection = () => {
           <img 
             src={currentImage} 
             alt="Hero Background Sequence" 
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              opacity: 1 // No dimming or glare
-            }}
+            className="hero-video-bg"
           />
         </div>
 
