@@ -95,11 +95,3 @@ html {
   object-position: center;
   opacity: 1;
 }
-
-@media (max-width: 768px) {
-  .hero-video-bg {
-    /* Prevent aggressive zoom/crop on portrait mobile screens */
-    object-fit: contain;
-    background-color: var(--color-bg-primary);
-  }
-}
