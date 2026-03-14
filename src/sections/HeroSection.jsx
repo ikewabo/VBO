@@ -19,9 +19,9 @@ const HeroSection = () => {
   const targetPlayCount = 2; // Play 2 loops before scrolling takes over
 
   useEffect(() => {
-    // Preload a few initial frames
+    // Preload a few initial frames (reduced to 12 for instant mobile load)
     const preloadFrames = async () => {
-      for (let i = 1; i <= 20; i++) {
+      for (let i = 1; i <= Math.min(12, framesCount); i++) {
         const img = new Image();
         const frameNum = i.toString().padStart(4, '0');
         img.src = `/frames/frame_${frameNum}.jpg`;

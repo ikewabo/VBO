@@ -9,8 +9,8 @@ if (!fs.existsSync(framesDir)){
 }
 
 try {
-    // Increase fps to 24 for a smooth, high-framerate sequence. 
-    const cmd = `"${ffmpeg}" -i "assets/vbohero.mp4" -vf fps=24 -s 1280x720 -q:v 3 "${path.join(framesDir, 'frame_%04d.jpg')}"`;
+    // Increase fps to 24 for a smooth sequence, but drop resolution and increase compression for mobile performance.
+    const cmd = `"${ffmpeg}" -i "assets/vbohero.mp4" -vf fps=24 -s 854x480 -q:v 12 "${path.join(framesDir, 'frame_%04d.jpg')}"`;
     console.log('Running:', cmd);
     execSync(cmd, { stdio: 'inherit' });
     console.log('Extracted frames to ' + framesDir);
