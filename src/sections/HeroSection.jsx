@@ -3,89 +3,51 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 
 const HeroSection = () => {
   const containerRef = useRef(null);
-  const [framesLoaded, setFramesLoaded] = useState(false);
-  const framesCount = 384; // Extracted 384 frames from vbohero.mp4 at 24fps
+  const videoRef = useRef(null);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
   });
 
-  const frameIndex = useTransform(scrollYProgress, [0, 1], [1, framesCount]);
-  const [currentImage, setCurrentImage] = useState('/frames/frame_0001.webp');
+  // The video duration is ~16 seconds
+  const videoTime = useTransform(scrollYProgress, [0, 1], [0, 16.0]);
 
   const [playCount, setPlayCount] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const targetPlayCount = 2; // Play 2 loops before scrolling takes over
 
-  useEffect(() => {
-    // Preload a few initial frames (reduced to 12 for instant mobile load)
-    // Await their actual download to prevent flooding the network on slow connections
-    const preloadFrames = async () => {
-      const promises = [];
-      for (let i = 1; i <= Math.min(12, framesCount); i++) {
-        promises.push(new Promise((resolve) => {
-          const img = new Image();
-          img.onload = resolve;
-          img.onerror = resolve; // Resolve on error too, so one missing frame doesn't block playback forever
-          const frameNum = i.toString().padStart(4, '0');
-          img.src = `/frames/frame_${frameNum}.webp`;
-        }));
+  const handleVideoEnded = () => {
+    if (!isAutoPlaying || !videoRef.current) return;
+    
+    setPlayCount(prev => {
+      const newCount = prev + 1;
+      if (newCount >= targetPlayCount) {
+        setIsAutoPlaying(false);
+      } else {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play();
       }
-      await Promise.all(promises);
-      setFramesLoaded(true);
-    };
-    preloadFrames();
-  }, []);
-
-  // Auto-play logic
-  useEffect(() => {
-    if (!isAutoPlaying || !framesLoaded) return;
-
-    let currentFrame = 1;
-    let intervalId;
-
-    const playLoop = () => {
-      intervalId = setInterval(() => {
-        currentFrame++;
-        if (currentFrame > framesCount) {
-          currentFrame = 1;
-          setPlayCount(prev => {
-            const newCount = prev + 1;
-            if (newCount >= targetPlayCount) {
-              clearInterval(intervalId);
-              setIsAutoPlaying(false);
-            }
-            return newCount;
-          });
-        }
-        
-        const frameNum = currentFrame.toString().padStart(4, '0');
-        setCurrentImage(`/frames/frame_${frameNum}.webp`);
-      }, 1000 / 24); // Play at 24fps matching extraction
-    };
-
-    playLoop();
-
-    return () => clearInterval(intervalId);
-  }, [isAutoPlaying, framesLoaded]);
+      return newCount;
+    });
+  };
 
   // Scroll-linked logic (only active after autoplay finishes)
   useEffect(() => {
-    if (isAutoPlaying || !framesLoaded) return;
+    if (isAutoPlaying || !videoRef.current) return;
 
     const updateFrame = () => {
-      const current = Math.min(Math.max(1, Math.round(frameIndex.get())), framesCount);
-      const frameNum = current.toString().padStart(4, '0');
-      setCurrentImage(`/frames/frame_${frameNum}.webp`);
+      if (videoRef.current) {
+        videoRef.current.currentTime = videoTime.get();
+      }
     };
     
     // Set initial frame based on scroll instantly when switching modes
     updateFrame();
     
-    const unsubscribe = frameIndex.on("change", updateFrame);
+    const unsubscribe = videoTime.on("change", updateFrame);
     return () => unsubscribe();
-  }, [frameIndex, isAutoPlaying, framesLoaded]);
+  }, [videoTime, isAutoPlaying]);
 
   return (
     <div ref={containerRef} style={{ height: '1200vh', position: 'relative' }}>
@@ -108,9 +70,13 @@ const HeroSection = () => {
           height: '100%',
           zIndex: 0
         }}>
-          <img 
-            src={currentImage} 
-            alt="Hero Background Sequence" 
+          <video 
+            ref={videoRef}
+            src="/video/hero.mp4" 
+            autoPlay
+            muted
+            playsInline
+            onEnded={handleVideoEnded}
             className="hero-video-bg"
           />
         </div>
