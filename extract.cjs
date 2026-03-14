@@ -9,8 +9,8 @@ if (!fs.existsSync(framesDir)){
 }
 
 try {
-    // Extract high-quality frames from the new pre-optimized 720p source without aggressive scaling or compression.
-    const cmd = `"${ffmpeg}" -i "assets/vbo - 720.mp4" -vf fps=24 -q:v 2 "${path.join(framesDir, 'frame_%04d.jpg')}"`;
+    // Scale the 1440p video down to true 720p and use highly optimized WebP format for fast web delivery.
+    const cmd = `"${ffmpeg}" -i "assets/vbo - 720.mp4" -vf "fps=24,scale=1280:720" -c:v libwebp -quality 60 "${path.join(framesDir, 'frame_%04d.webp')}"`;
     console.log('Running:', cmd);
     execSync(cmd, { stdio: 'inherit' });
     console.log('Extracted frames to ' + framesDir);

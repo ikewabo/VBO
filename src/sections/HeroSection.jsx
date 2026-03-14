@@ -12,7 +12,7 @@ const HeroSection = () => {
   });
 
   const frameIndex = useTransform(scrollYProgress, [0, 1], [1, framesCount]);
-  const [currentImage, setCurrentImage] = useState('/frames/frame_0001.jpg');
+  const [currentImage, setCurrentImage] = useState('/frames/frame_0001.webp');
 
   const [playCount, setPlayCount] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -24,7 +24,7 @@ const HeroSection = () => {
       for (let i = 1; i <= Math.min(12, framesCount); i++) {
         const img = new Image();
         const frameNum = i.toString().padStart(4, '0');
-        img.src = `/frames/frame_${frameNum}.jpg`;
+        img.src = `/frames/frame_${frameNum}.webp`;
       }
       setFramesLoaded(true);
     };
@@ -54,7 +54,7 @@ const HeroSection = () => {
         }
         
         const frameNum = currentFrame.toString().padStart(4, '0');
-        setCurrentImage(`/frames/frame_${frameNum}.jpg`);
+        setCurrentImage(`/frames/frame_${frameNum}.webp`);
       }, 1000 / 24); // Play at 24fps matching extraction
     };
 
@@ -70,7 +70,7 @@ const HeroSection = () => {
     const updateFrame = () => {
       const current = Math.min(Math.max(1, Math.round(frameIndex.get())), framesCount);
       const frameNum = current.toString().padStart(4, '0');
-      setCurrentImage(`/frames/frame_${frameNum}.jpg`);
+      setCurrentImage(`/frames/frame_${frameNum}.webp`);
     };
     
     // Set initial frame based on scroll instantly when switching modes
