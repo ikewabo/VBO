@@ -26,11 +26,26 @@ const HeroSection = () => {
         setIsAutoPlaying(false);
       } else {
         videoRef.current.currentTime = 0;
-        videoRef.current.play();
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => console.warn("Mobile browser prevented loop play:", error));
+        }
       }
       return newCount;
     });
   };
+
+  // Explicit programmatic play hook for strict mobile browsers
+  useEffect(() => {
+    if (isAutoPlaying && videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.warn("Mobile browser prevented initial autoplay (likely Low Power Mode):", error);
+        });
+      }
+    }
+  }, [isAutoPlaying]);
 
   // Scroll-linked logic (only active after autoplay finishes)
   useEffect(() => {
@@ -73,9 +88,13 @@ const HeroSection = () => {
           <video 
             ref={videoRef}
             src="/video/hero.mp4" 
+            poster="/video/poster.jpg"
             autoPlay
             muted
             playsInline
+            loop={false}
+            preload="auto"
+            disablePictureInPicture
             onEnded={handleVideoEnded}
             className="hero-video-bg"
           />
