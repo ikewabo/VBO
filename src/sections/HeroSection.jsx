@@ -20,12 +20,19 @@ const HeroSection = () => {
 
   useEffect(() => {
     // Preload a few initial frames (reduced to 12 for instant mobile load)
+    // Await their actual download to prevent flooding the network on slow connections
     const preloadFrames = async () => {
+      const promises = [];
       for (let i = 1; i <= Math.min(12, framesCount); i++) {
-        const img = new Image();
-        const frameNum = i.toString().padStart(4, '0');
-        img.src = `/frames/frame_${frameNum}.webp`;
+        promises.push(new Promise((resolve) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = resolve; // Resolve on error too, so one missing frame doesn't block playback forever
+          const frameNum = i.toString().padStart(4, '0');
+          img.src = `/frames/frame_${frameNum}.webp`;
+        }));
       }
+      await Promise.all(promises);
       setFramesLoaded(true);
     };
     preloadFrames();
@@ -33,7 +40,7 @@ const HeroSection = () => {
 
   // Auto-play logic
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || !framesLoaded) return;
 
     let currentFrame = 1;
     let intervalId;
@@ -65,7 +72,7 @@ const HeroSection = () => {
 
   // Scroll-linked logic (only active after autoplay finishes)
   useEffect(() => {
-    if (isAutoPlaying) return;
+    if (isAutoPlaying || !framesLoaded) return;
 
     const updateFrame = () => {
       const current = Math.min(Math.max(1, Math.round(frameIndex.get())), framesCount);
