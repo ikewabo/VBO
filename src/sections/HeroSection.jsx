@@ -68,7 +68,7 @@ const HeroSection = () => {
     playLoop();
 
     return () => clearInterval(intervalId);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, framesLoaded]);
 
   // Scroll-linked logic (only active after autoplay finishes)
   useEffect(() => {
@@ -85,7 +85,7 @@ const HeroSection = () => {
     
     const unsubscribe = frameIndex.on("change", updateFrame);
     return () => unsubscribe();
-  }, [frameIndex, isAutoPlaying]);
+  }, [frameIndex, isAutoPlaying, framesLoaded]);
 
   return (
     <div ref={containerRef} style={{ height: '1200vh', position: 'relative' }}>
